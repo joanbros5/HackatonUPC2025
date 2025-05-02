@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Screenshot Capture</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #status {
+      margin-top: 10px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+    #preview {
+      max-width: 100%;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Screenshot Capture</h2>
+  <button id="captureBtn">Capture Screenshot</button>
+  <div id="status"></div>
+  <img id="preview" alt="Screenshot preview">
+  <script src="popup.js"></script>
+</body>
+</html> 
