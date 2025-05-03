@@ -68,6 +68,6 @@ def image_to_tmp_url(image_bytes):
     #response = requests.get(image_url)
     #soup = BeautifulSoup(response.content, 'html.parser')
     #temp_url = soup.find('img')['src']
-    temp_url = "https://tmpfiles.org/dl/26952130/e31bc55d-c897-4253-893c-593b6c8f7a55.png"
+    temp_url = "https://tmpfiles.org/dl/26963558/53a1bed0-5e38-4704-ac70-aa03419ab6c1.png"
 
     return temp_url
