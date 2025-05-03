@@ -13,33 +13,35 @@ from ultralytics import YOLO
 # Load YOLO-v8 model
 _ = load_dotenv()
 
-def buscar_imagen_google(name: str, brand: str, id: str) -> Image.Image:
+def buscar_imagen_google(data_to_google: list[dict]) -> list[Image.Image]:
     api_key = os.getenv("GOOGLE_API_KEY")
-    google_query = f"{name} {brand} {id}"
-    params = {
-        "engine": "google",
-        "q": google_query,
-        "tbm": "isch",
-        "api_key": api_key
-    }
+    images_found = []
+    for data in data_to_google:
+        print(data)
+        google_query = f"{data['name']} {data['brand']} {data['id']}"
+        params = {
+            "engine": "google",
+            "q": google_query,
+            "tbm": "isch",
+            "api_key": api_key
+        }
 
-    search = GoogleSearch(params)
-    results = search.get_dict()
+        search = GoogleSearch(params)
+        results = search.get_dict()
 
-    if "images_results" in results and results["images_results"]:
-        primera_imagen = results["images_results"][0]
-        url_image = primera_imagen["original"]
-        print(f"Imagen encontrada: {url_image}")
+        if "images_results" in results and results["images_results"]:
+            primera_imagen = results["images_results"][0]
+            url_image = primera_imagen["original"]
+            print(f"Imagen encontrada: {url_image}")
+            images_found.append(url_image)
+        else:
+            print("No se encontraró imágen.")
+            continue
 
-        # Descargar y mostrar la imagen
-        response = requests.get(url_image)
-        image = Image.open(BytesIO(response.content))
-        image.show()
-
-        return image
-    else:
+    if len(images_found) == 0:
         print("No se encontraron imágenes.")
         return None
+    return images_found
 
 
 def detect_people_in_image(image_bytes):
@@ -52,19 +54,20 @@ def detect_people_in_image(image_bytes):
 
 def image_to_tmp_url(image_bytes):
     buffer = io.BytesIO()
-    buffer.write(image_bytes.getvalue())
+    buffer.write(image_bytes)
     buffer.seek(0)
 
     random_id = str(uuid.uuid4())
     file_name = f"{random_id}.png"
     files = {'file': (file_name, buffer)}
-    response = requests.post('https://tmpfiles.org/api/v1/upload', files=files)
-    data = response.json()
-    image_url = data['data']['url']
+    #response = requests.post('https://tmpfiles.org/api/v1/upload', files=files)
+    #data = response.json()
+    #image_url = data['data']['url']
 
     # Get temp url
-    response = requests.get(image_url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    temp_url = soup.find('img')['src']
+    #response = requests.get(image_url)
+    #soup = BeautifulSoup(response.content, 'html.parser')
+    #temp_url = soup.find('img')['src']
+    temp_url = "https://tmpfiles.org/dl/26940801/1a4865e5-bdae-4c4c-8bb6-efd5dd9d5815.png"
 
     return temp_url
