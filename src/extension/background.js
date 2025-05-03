@@ -666,7 +666,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 const product = data2.results[idx];
                                 const formData = new FormData();
                                 formData.append('clothing_image_url', product["image_url"]);
-                                formData.append('avatar_image_url', "https://media.istockphoto.com/id/907261794/photo/handsome-man.jpg?s=612x612&w=0&k=20&c=31YyQlon3lBpv7izm6h05HdwZXNiQKRX6_lkFQcTPRY=");
+                                formData.append('avatar_image_url', "https://tmpfiles.org/dl/26996531/e7d08d30-ec2b-46af-83af-48b989c02c29.png");
                                 fetch('http://localhost:8000/try-clothing', {
                                 method: 'POST',
                                 body: formData
@@ -796,4 +796,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     });
   }
-}); 
+});
