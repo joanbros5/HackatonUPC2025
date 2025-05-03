@@ -105,7 +105,7 @@ function injectBoundingBoxes(boxes) {
         });
         const data2 = await response2.json();
         console.log('Search results:', data2);
-        
+
         const popup = document.createElement('div');
         popup.style.cssText = `
           position: fixed;
@@ -338,7 +338,7 @@ function toggleRecordingIndicator(show) {
 // Listen for extension icon click
 chrome.action.onClicked.addListener((tab) => {
   isExtensionActive = !isExtensionActive; // Toggle state
-  
+
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     function: toggleRecordingIndicator,
@@ -500,7 +500,7 @@ chrome.commands.onCommand.addListener((command) => {
                             });
                             const data2 = await response2.json();
                             console.log('Search results:', data2);
-                            
+
                             const popup = document.createElement('div');
                             popup.style.cssText = `
                               position: fixed;
@@ -649,6 +649,24 @@ chrome.commands.onCommand.addListener((command) => {
                               btn.onclick = async (e) => {
                                 e.preventDefault();
                                 const product = data2.results[idx];
+                                const formData = new FormData();
+                                formData.append('clothing_image_url', product["image_url"]);
+                                formData.append('avatar_image_url', "https://media.istockphoto.com/id/907261794/photo/handsome-man.jpg?s=612x612&w=0&k=20&c=31YyQlon3lBpv7izm6h05HdwZXNiQKRX6_lkFQcTPRY=");
+                                fetch('http://localhost:8000/try-clothing', {
+                                method: 'POST',
+                                body: formData
+                                })
+                                  .then(response => response.json())
+                                  .then(data => {
+                                    const dataUrl = data.url;
+                                    console.log("DATA_URL:", dataUrl);
+                                  })
+                                  .catch(error => {
+                                    console.error("Error fetching try-clothing:", error);
+                                  });
+
+
+                                console.log("DATA_URL: ", dataUrl)
                                 const tryOnImg = "images/icon.png"
                                 // Create a popup overlay for the try-on result
                                 let tryOnPopup = document.getElementById('try-on-popup');

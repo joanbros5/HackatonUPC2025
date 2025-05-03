@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Tuple
@@ -7,7 +7,7 @@ from inditex import *
 
 import cv2
 import numpy as np
-import mediapipe as mp
+#import mediapipe as mp
 
 
 app = FastAPI()
@@ -69,6 +69,21 @@ async def get_products(file: UploadFile = File(...)):
 
     return {"results": images_with_links}
 
+@app.post("/try-clothing")
+async def get_try_clothing(
+    clothing_image_url: str = Form(...),
+    avatar_image_url: str = Form(...)
+):
+    img = generate_image(
+        clothing_image_url,
+        avatar_image_url
+    )
+
+
+    url = image_to_tmp_url(img)
+    return {"url": url}
+
+"""
 @app.post("/get-contour")
 async def get_contour(file: UploadFile = File(...)):
     # Decode image from bytes
@@ -104,6 +119,8 @@ async def get_contour(file: UploadFile = File(...)):
             contour_points.append([int(point[0][0]), int(point[0][1])])
 
     return {"contour": contour_points}
+
+"""
 
 if __name__ == "__main__":
     import uvicorn
