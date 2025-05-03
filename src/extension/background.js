@@ -51,6 +51,8 @@ function injectBoundingBoxes(boxes) {
     // Add click handler to crop and search
     boxElement.addEventListener('click', async (event) => {
       event.stopPropagation();
+      // Store reference to the selected box
+      const selectedBox = boxElement;
       // Remove all other bounding boxes except the clicked one
       const allBoxes = Array.from(container.children);
       allBoxes.forEach(child => {
@@ -281,7 +283,18 @@ function injectBoundingBoxes(boxes) {
         });
         // Move close button to the top
         const closeButton = popup.querySelector('.close-btn');
-        closeButton.onclick = () => popup.remove();
+        closeButton.onclick = () => {
+            popup.remove();
+            // Remove the selected bounding box
+            if (selectedBox) {
+                selectedBox.remove();
+            }
+            // Remove the dark overlay if it exists
+            const overlay = document.getElementById('bb-overlay-shadow');
+            if (overlay) {
+                overlay.remove();
+            }
+        };
         // Remove loading spinner if present
         const loader2 = document.getElementById('popup-loader');
         if (loader2) loader2.remove();
@@ -446,6 +459,8 @@ chrome.commands.onCommand.addListener((command) => {
                         // Add click handler to crop and search
                         boxElement.addEventListener('click', async (event) => {
                           event.stopPropagation();
+                          // Store reference to the selected box
+                          const selectedBox = boxElement;
                           // Remove all other bounding boxes except the clicked one
                           const allBoxes = Array.from(container.children);
                           allBoxes.forEach(child => {
@@ -644,39 +659,20 @@ chrome.commands.onCommand.addListener((command) => {
                                 `).join('')}
                               </div>
                             `;
-                            // Attach the event handler programmatically
-                            popup.querySelectorAll('.try-on-btn').forEach((btn, idx) => {
-                              btn.onclick = async (e) => {
-                                e.preventDefault();
-                                const product = data2.results[idx];
-                                const tryOnImg = "images/icon.png"
-                                // Create a popup overlay for the try-on result
-                                let tryOnPopup = document.getElementById('try-on-popup');
-                                if (tryOnPopup) tryOnPopup.remove();
-                                tryOnPopup = document.createElement('div');
-                                tryOnPopup.id = 'try-on-popup';
-                                tryOnPopup.style.cssText = `
-                                  position: fixed;
-                                  top: 0; left: 0; width: 100vw; height: 100vh;
-                                  background: rgba(30,30,30,0.55);
-                                  z-index: 2147483647;
-                                  display: flex; align-items: center; justify-content: center;
-                                `;
-                                tryOnPopup.innerHTML = `
-                                  <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                                      <img src="${tryOnImg}" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
-                                      <button style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
-                                    </div>
-                                  `;
-                                // Attach close handler programmatically
-                                const closeBtn = tryOnPopup.querySelector('button');
-                                closeBtn.onclick = () => tryOnPopup.remove();
-                                document.body.appendChild(tryOnPopup);
-                              };
-                            });
                             // Move close button to the top
                             const closeButton = popup.querySelector('.close-btn');
-                            closeButton.onclick = () => popup.remove();
+                            closeButton.onclick = () => {
+                                popup.remove();
+                                // Remove the selected bounding box
+                                if (selectedBox) {
+                                    selectedBox.remove();
+                                }
+                                // Remove the dark overlay if it exists
+                                const overlay = document.getElementById('bb-overlay-shadow');
+                                if (overlay) {
+                                    overlay.remove();
+                                }
+                            };
                             // Remove loading spinner if present
                             const loader2 = document.getElementById('popup-loader');
                             if (loader2) loader2.remove();
