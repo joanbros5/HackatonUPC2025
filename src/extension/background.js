@@ -256,8 +256,11 @@ function injectBoundingBoxes(boxes) {
           btn.onclick = async (e) => {
             e.preventDefault();
             const product = data2.results[idx];
-            const tryOnImg = "images/icon.png"
-            // Create a popup overlay for the try-on result
+            const formData = new FormData();
+            formData.append('clothing_image_url', product["image_url"]);
+            formData.append('avatar_image_url', "https://tmpfiles.org/dl/26996531/e7d08d30-ec2b-46af-83af-48b989c02c29.png");
+            
+            // Create a popup overlay for the try-on result immediately
             let tryOnPopup = document.getElementById('try-on-popup');
             if (tryOnPopup) tryOnPopup.remove();
             tryOnPopup = document.createElement('div');
@@ -271,14 +274,51 @@ function injectBoundingBoxes(boxes) {
             `;
             tryOnPopup.innerHTML = `
               <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                <img src="${tryOnImg}" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                <img src="https://tmpfiles.org/dl/26996531/e7d08d30-ec2b-46af-83af-48b989c02c29.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+                  <svg width="24" height="24" viewBox="0 0 50 50">
+                    <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
+                      <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite"/>
+                    </circle>
+                  </svg>
+                  <span style="color: #666; font-size: 14px; font-weight: 500;">Generating try-on result...</span>
+                </div>
                 <button style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
               </div>
             `;
+            document.body.appendChild(tryOnPopup);
+
             // Attach close handler programmatically
             const closeBtn = tryOnPopup.querySelector('button');
-            closeBtn.onclick = () => tryOnPopup.remove();
-            document.body.appendChild(tryOnPopup);
+            closeBtn.onclick = () => {
+              tryOnPopup.remove();
+              // Resume any paused videos
+              if (pausedVideos && pausedVideos.length > 0) {
+                resumeVideos(pausedVideos);
+              }
+            };
+
+            // Fetch the try-on result
+            fetch('http://localhost:8000/try-clothing', {
+              method: 'POST',
+              body: formData
+            })
+              .then(response => response.json())
+              .then(data => {
+                const tryOnImg = data.url;
+                // Update the image in the popup
+                const imgElement = tryOnPopup.querySelector('img');
+                imgElement.src = tryOnImg;
+                // Remove the loading indicator
+                const loadingDiv = tryOnPopup.querySelector('div');
+                loadingDiv.remove();
+              })
+              .catch(error => {
+                console.error("Error fetching try-clothing:", error);
+                // Show error message
+                const loadingDiv = tryOnPopup.querySelector('div');
+                loadingDiv.innerHTML = '<span style="color: #e60023; font-size: 14px; font-weight: 500;">Error generating try-on result. Please try again.</span>';
+              });
           };
         });
         // Move close button to the top
@@ -362,10 +402,20 @@ chrome.action.onClicked.addListener((tab) => {
 // Function to pause all videos on the page
 function pauseAllVideos() {
   const videos = document.querySelectorAll('video');
+  const pausedVideos = [];
   videos.forEach(video => {
     if (!video.paused) {
       video.pause();
+      pausedVideos.push(video);
     }
+  });
+  return pausedVideos;
+}
+
+// Function to resume paused videos
+function resumeVideos(pausedVideos) {
+  pausedVideos.forEach(video => {
+    video.play();
   });
 }
 
@@ -379,7 +429,8 @@ chrome.commands.onCommand.addListener((command) => {
         chrome.scripting.executeScript({
           target: { tabId: tabs[0].id },
           function: pauseAllVideos
-        }, () => {
+        }, (result) => {
+          const pausedVideos = result[0].result;
           // Capture the screenshot
           chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
             // Convert data URL to blob
@@ -394,14 +445,14 @@ chrome.commands.onCommand.addListener((command) => {
                 return fetch('http://localhost:8000/boxes', {
                   method: 'POST',
                   body: formData
-                }).then(response => response.json()).then(data => ({ data, dataUrl }));
+                }).then(response => response.json()).then(data => ({ data, dataUrl, pausedVideos }));
               })
-              .then(({ data, dataUrl }) => {
+              .then(({ data, dataUrl, pausedVideos }) => {
                 console.log('API Response:', data); // Debug log
                 // Inject the drawing logic into the page context
                 chrome.scripting.executeScript({
                   target: { tabId: tabs[0].id },
-                  function: (boxes, dataUrl) => {
+                  function: (boxes, dataUrl, pausedVideos) => {
                     // This code runs in the page context!
                     const img = new Image();
                     img.onload = function() {
@@ -667,16 +718,8 @@ chrome.commands.onCommand.addListener((command) => {
                                 const formData = new FormData();
                                 formData.append('clothing_image_url', product["image_url"]);
                                 formData.append('avatar_image_url', "https://tmpfiles.org/dl/26996531/e7d08d30-ec2b-46af-83af-48b989c02c29.png");
-                                fetch('http://localhost:8000/try-clothing', {
-                                method: 'POST',
-                                body: formData
-                                })
-                                  .then(response => response.json())
-                                  .then(data => {
-                                    const tryOnImg = data.url;
-                                    console.log("DATA_URL:", dataUrl);
-                                                                   //const tryOnImg = dataUrl
-                                // Create a popup overlay for the try-on result
+                                
+                                // Create a popup overlay for the try-on result immediately
                                 let tryOnPopup = document.getElementById('try-on-popup');
                                 if (tryOnPopup) tryOnPopup.remove();
                                 tryOnPopup = document.createElement('div');
@@ -690,21 +733,51 @@ chrome.commands.onCommand.addListener((command) => {
                                 `;
                                 tryOnPopup.innerHTML = `
                                   <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                                      <img src="${tryOnImg}" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
-                                      <button style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
+                                    <img src="https://tmpfiles.org/dl/26996531/e7d08d30-ec2b-46af-83af-48b989c02c29.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+                                      <svg width="24" height="24" viewBox="0 0 50 50">
+                                        <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
+                                          <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite"/>
+                                        </circle>
+                                      </svg>
+                                      <span style="color: #666; font-size: 14px; font-weight: 500;">Generating try-on result...</span>
                                     </div>
-                                  `;
+                                    <button style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
+                                  </div>
+                                `;
+                                document.body.appendChild(tryOnPopup);
+
                                 // Attach close handler programmatically
                                 const closeBtn = tryOnPopup.querySelector('button');
-                                closeBtn.onclick = () => tryOnPopup.remove();
-                                document.body.appendChild(tryOnPopup);
+                                closeBtn.onclick = () => {
+                                  tryOnPopup.remove();
+                                  // Resume any paused videos
+                                  if (pausedVideos && pausedVideos.length > 0) {
+                                    resumeVideos(pausedVideos);
+                                  }
+                                };
+
+                                // Fetch the try-on result
+                                fetch('http://localhost:8000/try-clothing', {
+                                  method: 'POST',
+                                  body: formData
+                                })
+                                  .then(response => response.json())
+                                  .then(data => {
+                                    const tryOnImg = data.url;
+                                    // Update the image in the popup
+                                    const imgElement = tryOnPopup.querySelector('img');
+                                    imgElement.src = tryOnImg;
+                                    // Remove the loading indicator
+                                    const loadingDiv = tryOnPopup.querySelector('div');
+                                    loadingDiv.remove();
                                   })
                                   .catch(error => {
                                     console.error("Error fetching try-clothing:", error);
+                                    // Show error message
+                                    const loadingDiv = tryOnPopup.querySelector('div');
+                                    loadingDiv.innerHTML = '<span style="color: #e60023; font-size: 14px; font-weight: 500;">Error generating try-on result. Please try again.</span>';
                                   });
-
-
-
                               };
                             });
                             // Move close button to the top
@@ -752,7 +825,7 @@ chrome.commands.onCommand.addListener((command) => {
                     };
                     img.src = dataUrl;
                   },
-                  args: [data.boxes || [], dataUrl]
+                  args: [data.boxes || [], dataUrl, pausedVideos]
                 });
               })
               .catch(error => {
