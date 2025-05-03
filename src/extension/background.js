@@ -107,7 +107,7 @@ function injectBoundingBoxes(boxes) {
         });
         const data2 = await response2.json();
         console.log('Search results:', data2);
-        
+
         const popup = document.createElement('div');
         popup.style.cssText = `
           position: fixed;
@@ -351,7 +351,7 @@ function toggleRecordingIndicator(show) {
 // Listen for extension icon click
 chrome.action.onClicked.addListener((tab) => {
   isExtensionActive = !isExtensionActive; // Toggle state
-  
+
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     function: toggleRecordingIndicator,
@@ -515,7 +515,7 @@ chrome.commands.onCommand.addListener((command) => {
                             });
                             const data2 = await response2.json();
                             console.log('Search results:', data2);
-                            
+
                             const popup = document.createElement('div');
                             popup.style.cssText = `
                               position: fixed;
@@ -659,6 +659,54 @@ chrome.commands.onCommand.addListener((command) => {
                                 `).join('')}
                               </div>
                             `;
+                            // Attach the event handler programmatically
+                            popup.querySelectorAll('.try-on-btn').forEach((btn, idx) => {
+                              btn.onclick = async (e) => {
+                                e.preventDefault();
+                                const product = data2.results[idx];
+                                const formData = new FormData();
+                                formData.append('clothing_image_url', product["image_url"]);
+                                formData.append('avatar_image_url', "https://media.istockphoto.com/id/907261794/photo/handsome-man.jpg?s=612x612&w=0&k=20&c=31YyQlon3lBpv7izm6h05HdwZXNiQKRX6_lkFQcTPRY=");
+                                fetch('http://localhost:8000/try-clothing', {
+                                method: 'POST',
+                                body: formData
+                                })
+                                  .then(response => response.json())
+                                  .then(data => {
+                                    const tryOnImg = data.url;
+                                    console.log("DATA_URL:", dataUrl);
+                                                                   //const tryOnImg = dataUrl
+                                // Create a popup overlay for the try-on result
+                                let tryOnPopup = document.getElementById('try-on-popup');
+                                if (tryOnPopup) tryOnPopup.remove();
+                                tryOnPopup = document.createElement('div');
+                                tryOnPopup.id = 'try-on-popup';
+                                tryOnPopup.style.cssText = `
+                                  position: fixed;
+                                  top: 0; left: 0; width: 100vw; height: 100vh;
+                                  background: rgba(30,30,30,0.55);
+                                  z-index: 2147483647;
+                                  display: flex; align-items: center; justify-content: center;
+                                `;
+                                tryOnPopup.innerHTML = `
+                                  <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
+                                      <img src="${tryOnImg}" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                                      <button style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
+                                    </div>
+                                  `;
+                                // Attach close handler programmatically
+                                const closeBtn = tryOnPopup.querySelector('button');
+                                closeBtn.onclick = () => tryOnPopup.remove();
+                                document.body.appendChild(tryOnPopup);
+                                  })
+                                  .catch(error => {
+                                    console.error("Error fetching try-clothing:", error);
+                                  });
+
+
+
+                              };
+                            });
                             // Move close button to the top
                             const closeButton = popup.querySelector('.close-btn');
                             closeButton.onclick = () => {

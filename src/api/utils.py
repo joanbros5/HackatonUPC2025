@@ -14,6 +14,24 @@ from ultralytics import YOLO
 _ = load_dotenv()
 
 
+def generate_image(clothing_image_url, avatar_image_url):
+    payload = {
+        "clothing_image_url": {clothing_image_url},
+        "avatar_image_url": {avatar_image_url}
+    }
+    headers = {
+        "x-rapidapi-key": os.getenv("RADAPI_KEY"),
+        "x-rapidapi-host": "try-on-diffusion.p.rapidapi.com",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    response = requests.post(
+        "https://try-on-diffusion.p.rapidapi.com/try-on-url", data=payload,
+        headers=headers)
+    return BytesIO(response.content)
+
+
+
 def buscar_imagen_google(data_to_google: list[dict]) -> list[Image.Image]:
     api_key = os.getenv("GOOGLE_API_KEY")
     images_found = []
@@ -53,21 +71,18 @@ def detect_people_in_image(image_bytes):
     print(boxes)
     return boxes
 
-
 def image_to_tmp_url(image_bytes):
     buffer = io.BytesIO()
-    buffer.write(image_bytes)
+    buffer.write(image_bytes.getvalue())
     buffer.seek(0)
-
     random_id = str(uuid.uuid4())
     file_name = f"{random_id}.png"
     files = {'file': (file_name, buffer)}
     response = requests.post('https://tmpfiles.org/api/v1/upload', files=files)
     data = response.json()
     image_url = data['data']['url']
-
+    # Get temp url
     response = requests.get(image_url)
     soup = BeautifulSoup(response.content, 'html.parser')
     temp_url = soup.find('img')['src']
-
     return temp_url
