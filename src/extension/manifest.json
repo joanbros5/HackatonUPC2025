@@ -1,11 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Screenshot Capture",
+  "name": "Screenshot Analyzer",
   "version": "1.0",
-  "description": "Captures screenshots and displays them in the popup",
+  "description": "Analyze screenshots with bounding boxes",
   "permissions": [
     "activeTab",
     "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -26,5 +29,8 @@
   },
   "background": {
     "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:8000"
   }
 } 

@@ -82,7 +82,7 @@ def search_products(image_url: str) -> list[dict]:
 
 if __name__ == "__main__":
     # Test image URL
-    image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpDSa6u-YP_lB6OnfacVzhi9-6g5J2JhLWeg&s"
+    image_url = "https://tmpfiles.org/dl/26900256/a58f7aa2-1e8f-4e47-aa94-87d3ada8b186.png"
     
     print("Searching products for image:", image_url)
     result = search_products(image_url)

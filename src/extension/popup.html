@@ -1,43 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Screenshot Capture</title>
+  <title>Screenshot Analyzer</title>
   <style>
     body {
-      width: 35px;
-      padding: 5px 0 5px 5px;
-      margin: 0;
-      background: #f5f5f5;
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
     }
-    button {
-      width: 25px;
-      height: 25px;
-      padding: 0;
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-    button:hover {
-      transform: scale(1.1);
-    }
-    button:active {
-      transform: scale(0.95);
-    }
-    .camera-icon {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
+    .instructions {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <button id="captureBtn" title="Capture Screenshot (Ctrl+Shift+S)">
-    <img class="camera-icon" src="images/screenshot.png" alt="Screenshot">
-  </button>
-  <script src="popup.js"></script>
+  <div class="instructions">
+    Press Ctrl+Shift+S to capture and analyze the current page
+  </div>
 </body>
 </html> 
