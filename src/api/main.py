@@ -77,8 +77,6 @@ async def get_try_clothing(
         clothing_image_url,
         avatar_image_url
     )
-
-
     url = image_to_tmp_url(img)
     return {"url": url}
 
