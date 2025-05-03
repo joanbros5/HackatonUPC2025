@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 def get_token() -> str:
     """
     Get OAuth2 access token from Inditex
@@ -26,8 +27,7 @@ def get_token() -> str:
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         )
-        
-        
+
         if response.status_code != 200:
             print(f"Error getting token: {response.text}")
             return None
@@ -38,6 +38,7 @@ def get_token() -> str:
     except Exception as e:
         print(f"Error getting token: {str(e)}")
         return None
+
 
 def search_products(image_url: str) -> list[dict]:
     """
@@ -61,14 +62,12 @@ def search_products(image_url: str) -> list[dict]:
             "page": 1,
             "perPage": 5
         }
-        
-        
+
         response = requests.get(
             "https://api.inditex.com/pubvsearch/products",
             params=params,
             headers=headers
         )
-        
 
         if response.status_code != 200:
             print(f"Error searching products: {response.text}")
@@ -79,6 +78,7 @@ def search_products(image_url: str) -> list[dict]:
     except Exception as e:
         print(f"Error searching products: {str(e)}")
         return None
+
 
 if __name__ == "__main__":
     # Test image URL

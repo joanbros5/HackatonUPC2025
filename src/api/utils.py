@@ -13,6 +13,7 @@ from ultralytics import YOLO
 # Load YOLO-v8 model
 _ = load_dotenv()
 
+
 def buscar_imagen_google(data_to_google: list[dict]) -> list[Image.Image]:
     api_key = os.getenv("GOOGLE_API_KEY")
     images_found = []
@@ -51,6 +52,7 @@ def detect_people_in_image(image_bytes):
     boxes = results[0].boxes.xyxy.tolist()
     print(boxes)
     return boxes
+
 
 def image_to_tmp_url(image_bytes):
     buffer = io.BytesIO()

@@ -1,11 +1,8 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Tuple
 from utils import *
 from inditex import *
 import requests
-
 
 
 app = FastAPI()
@@ -19,14 +16,15 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 @app.post("/boxes")
 async def get_boxes(file: UploadFile = File(...)):
     # Read the uploaded file
     contents = await file.read()
     boxes = detect_people_in_image(contents)
-    #boxes = [[0, 0, 100, 100], [100, 100, 200, 200], [200, 200, 300, 300], [300, 300, 400, 400]]
 
     return {"boxes": boxes}
+
 
 @app.post("/search-products")
 async def get_products(file: UploadFile = File(...)):
@@ -35,7 +33,6 @@ async def get_products(file: UploadFile = File(...)):
     files = {"file": (file.filename, contents)}
     temp_url = requests.post("https://hackatonupc2025.onrender.com/temp-url", files=files)
 
-    #temp_url = image_to_tmp_url(contents)
     temp_url = temp_url.json()["temp_url"]
     print(temp_url)
     results = search_products(temp_url)
