@@ -292,10 +292,13 @@ function injectBoundingBoxes(boxes) {
             const closeBtn = tryOnPopup.querySelector('button');
             closeBtn.onclick = () => {
               tryOnPopup.remove();
-              // Resume any paused videos
-              if (pausedVideos && pausedVideos.length > 0) {
-                resumeVideos(pausedVideos);
-              }
+              // Resume all videos on the page
+              const videos = document.querySelectorAll('video');
+              videos.forEach(video => {
+                if (video.paused) {
+                  video.play();
+                }
+              });
             };
 
             // Fetch the try-on result
@@ -751,10 +754,13 @@ chrome.commands.onCommand.addListener((command) => {
                                 const closeBtn = tryOnPopup.querySelector('button');
                                 closeBtn.onclick = () => {
                                   tryOnPopup.remove();
-                                  // Resume any paused videos
-                                  if (pausedVideos && pausedVideos.length > 0) {
-                                    resumeVideos(pausedVideos);
-                                  }
+                                  // Resume all videos on the page
+                                  const videos = document.querySelectorAll('video');
+                                  videos.forEach(video => {
+                                    if (video.paused) {
+                                      video.play();
+                                    }
+                                  });
                                 };
 
                                 // Fetch the try-on result
