@@ -111,66 +111,79 @@ chrome.commands.onCommand.addListener((command) => {
       if (tabs[0]) {
         // Capture the screenshot
         chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
-          // Execute the processing directly in the current tab
-          chrome.scripting.executeScript({
-            target: { tabId: tabs[0].id },
-            function: async (dataUrl) => {
-              try {
-                // Fetch boxes from API
-                const response = await chrome.runtime.sendMessage({ type: 'get_boxes' });
-                if (!response || !response.boxes) {
-                  throw new Error('Invalid response format from API');
-                }
-                const boxes = response.boxes;
-                
-                // Create a container for the boxes
-                const container = document.createElement('div');
-                container.style.cssText = `
-                  position: fixed;
-                  top: 0;
-                  left: 0;
-                  width: 100%;
-                  height: 100%;
-                  pointer-events: none;
-                  z-index: 999999;
-                `;
+          // Convert data URL to blob
+          fetch(dataUrl)
+            .then(res => res.blob())
+            .then(blob => {
+              // Create form data
+              const formData = new FormData();
+              formData.append('file', blob, 'screenshot.png');
 
-                // Create boxes
-                boxes.forEach(([x1, y1, x2, y2]) => {
-                  const box = document.createElement('div');
-                  box.style.cssText = `
-                    position: absolute;
-                    left: ${x1}px;
-                    top: ${y1}px;
-                    width: ${x2 - x1}px;
-                    height: ${y2 - y1}px;
-                    border: 2px solid red;
-                    pointer-events: auto;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                  `;
+              // Send to API
+              return fetch('http://localhost:8000/boxes', {
+                method: 'POST',
+                body: formData
+              });
+            })
+            .then(response => response.json())
+            .then(data => {
+              // Execute the processing directly in the current tab
+              chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id },
+                function: (boxes) => {
+                  try {
+                    // Create a container for the boxes
+                    const container = document.createElement('div');
+                    container.style.cssText = `
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      pointer-events: none;
+                      z-index: 999999;
+                    `;
 
-                  // Add hover effect
-                  box.addEventListener('mouseover', () => {
-                    box.style.border = '2px solid #00ff00';
-                    box.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
-                  });
+                    // Create boxes
+                    boxes.forEach(([x1, y1, x2, y2]) => {
+                      const box = document.createElement('div');
+                      box.style.cssText = `
+                        position: absolute;
+                        left: ${x1}px;
+                        top: ${y1}px;
+                        width: ${x2 - x1}px;
+                        height: ${y2 - y1}px;
+                        border: 2px solid red;
+                        pointer-events: auto;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                      `;
 
-                  box.addEventListener('mouseout', () => {
-                    box.style.border = '2px solid red';
-                    box.style.boxShadow = 'none';
-                  });
+                      // Add hover effect
+                      box.addEventListener('mouseover', () => {
+                        box.style.border = '2px solid #00ff00';
+                        box.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
+                      });
 
-                  container.appendChild(box);
-                });
+                      box.addEventListener('mouseout', () => {
+                        box.style.border = '2px solid red';
+                        box.style.boxShadow = 'none';
+                      });
 
-                document.body.appendChild(container);
-              } catch (error) {
-                console.error('Error:', error);
-              }
-            },
-            args: [dataUrl]
-          });
+                      container.appendChild(box);
+                    });
+
+                    document.body.appendChild(container);
+                  } catch (error) {
+                    console.error('Error:', error);
+                  }
+                },
+                args: [data.boxes]
+              });
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
         });
       }
     });
