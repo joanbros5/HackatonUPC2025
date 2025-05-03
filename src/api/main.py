@@ -1,9 +1,9 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import base64
-import io
-from PIL import Image
-
+from pydantic import BaseModel
+from typing import List, Tuple
+from .utils import *
+from .inditex import *
 app = FastAPI()
 
 # Enable CORS
@@ -32,6 +32,17 @@ async def get_boxes(file: UploadFile = File(...)):
     ]
     
     return {"boxes": boxes}
+
+@app.post("/search-products")
+async def get_boxes(file: UploadFile = File(...)):
+    # Leer la imagen del archivo subido
+    contents = await file.read()
+    temp_url = image_to_tmp_url(contents)
+    results = search_products(temp_url)
+
+    return {"results": results}
+
+
 
 if __name__ == "__main__":
     import uvicorn
