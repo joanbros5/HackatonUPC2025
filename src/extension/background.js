@@ -231,15 +231,17 @@ function injectBoundingBoxes(boxes) {
           popup.style.transform = '';
           popup.innerHTML = `
             <button class="close-btn" title="Close" aria-label="Close">&#10005;</button>
-            <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
               ${data.results.map(result => `
-                <a href="${result.link}" target="_blank" class="image-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none;">
-                  <img src="${result.image_url}" class="product-img" style="max-width: 180px; max-height: 180px; object-fit: contain; display: block;">
-                  <div class="product-name"><strong>${result.name}</strong></div>
-                  <div class="product-brand">${result.brand}</div>
-                  <div class="product-price">${result.price}</div>
-                  <button class="try-on-btn" type="button" onclick="event.preventDefault(); /* TODO: Call try-on API here */">Try it on</button>
-                </a>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                  <a href="${result.link}" target="_blank" class="image-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; margin-bottom: 0; padding-bottom: 0;">
+                    <img src="${result.image_url}" class="product-img" style="max-width: 180px; max-height: 180px; object-fit: contain; display: block;">
+                    <div class="product-name"><strong>${result.name}</strong></div>
+                    <div class="product-brand">${result.brand}</div>
+                    <div class="product-price">${result.price}</div>
+                  </a>
+                  <button class="try-on-btn" type="button" style="margin-top: 0; margin-bottom: 0;" onclick="/* TODO: Call try-on API here */">Try it on</button>
+                </div>
               `).join('')}
             </div>
           `;
@@ -594,15 +596,17 @@ chrome.commands.onCommand.addListener((command) => {
                               popup.style.transform = '';
                               popup.innerHTML = `
                                 <button class="close-btn" title="Close" aria-label="Close">&#10005;</button>
-                                <div style="display: flex; flex-direction: column; gap: 18px;">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
                                   ${data.results.map(result => `
-                                    <a href="${result.link}" target="_blank" class="image-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none;">
-                                      <img src="${result.image_url}" class="product-img" style="max-width: 180px; max-height: 180px; object-fit: contain; display: block;">
-                                      <div class="product-name"><strong>${result.name}</strong></div>
-                                      <div class="product-brand">${result.brand}</div>
-                                      <div class="product-price">${result.price}</div>
-                                      <button class="try-on-btn" type="button" onclick="event.preventDefault(); /* TODO: Call try-on API here */">Try it on</button>
-                                    </a>
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                      <a href="${result.link}" target="_blank" class="image-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; margin-bottom: 0; padding-bottom: 0;">
+                                        <img src="${result.image_url}" class="product-img" style="max-width: 180px; max-height: 180px; object-fit: contain; display: block;">
+                                        <div class="product-name"><strong>${result.name}</strong></div>
+                                        <div class="product-brand">${result.brand}</div>
+                                        <div class="product-price">${result.price}</div>
+                                      </a>
+                                      <button class="try-on-btn" type="button" style="margin-top: 0; margin-bottom: 0;" onclick="/* TODO: Call try-on API here */">Try it on</button>
+                                    </div>
                                   `).join('')}
                                 </div>
                               `;
