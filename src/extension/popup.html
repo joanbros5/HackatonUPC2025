@@ -4,50 +4,40 @@
   <title>Screenshot Capture</title>
   <style>
     body {
-      width: 300px;
-      padding: 10px;
-      font-family: Arial, sans-serif;
+      width: 35px;
+      padding: 5px 0 5px 5px;
+      margin: 0;
+      background: #f5f5f5;
     }
     button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      background-color: #4CAF50;
-      color: white;
+      width: 25px;
+      height: 25px;
+      padding: 0;
+      background-color: transparent;
       border: none;
-      border-radius: 4px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
     }
     button:hover {
-      background-color: #45a049;
+      transform: scale(1.1);
     }
-    #status {
-      margin-top: 10px;
-      padding: 5px;
-      border-radius: 4px;
+    button:active {
+      transform: scale(0.95);
     }
-    .success {
-      background-color: #dff0d8;
-      color: #3c763d;
-    }
-    .error {
-      background-color: #f2dede;
-      color: #a94442;
-    }
-    #preview {
-      max-width: 100%;
-      margin-top: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      display: none;
+    .camera-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-  <h2>Screenshot Capture</h2>
-  <button id="captureBtn">Capture Screenshot</button>
-  <div id="status"></div>
-  <img id="preview" alt="Screenshot preview">
+  <button id="captureBtn" title="Capture Screenshot (Ctrl+Shift+S)">
+    <img class="camera-icon" src="images/screenshot.png" alt="Screenshot">
+  </button>
   <script src="popup.js"></script>
 </body>
 </html> 
