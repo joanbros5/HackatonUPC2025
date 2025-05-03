@@ -10,13 +10,8 @@
   "host_permissions": [
     "http://localhost:8000/*"
   ],
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "images/icon.png",
-      "48": "images/icon.png",
-      "128": "images/icon.png"
-    }
+  "background": {
+    "service_worker": "background.js"
   },
   "commands": {
     "capture-screenshot": {
@@ -24,13 +19,14 @@
         "default": "Ctrl+Shift+S",
         "mac": "Command+Shift+S"
       },
-      "description": "Capture screenshot"
+      "description": "Capture and analyze screenshot"
     }
   },
-  "background": {
-    "service_worker": "background.js"
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:8000"
+  "action": {
+    "default_icon": {
+      "16": "images/icon.png",
+      "48": "images/icon.png",
+      "128": "images/icon.png"
+    }
   }
 } 

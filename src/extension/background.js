@@ -3,9 +3,109 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log('Screenshot Capture extension installed');
 });
 
+// Track extension state
+let isExtensionActive = false;
+
+// Function to inject bounding boxes into the page
+function injectBoundingBoxes(boxes) {
+  // Create a container for the boxes
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999999;
+  `;
+
+  // Create boxes
+  boxes.forEach(([x1, y1, x2, y2]) => {
+    const box = document.createElement('div');
+    box.style.cssText = `
+      position: absolute;
+      left: ${x1}px;
+      top: ${y1}px;
+      width: ${x2 - x1}px;
+      height: ${y2 - y1}px;
+      border: 2px solid red;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    `;
+
+    // Add hover effect
+    box.addEventListener('mouseover', () => {
+      box.style.border = '2px solid #00ff00';
+      box.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
+    });
+
+    box.addEventListener('mouseout', () => {
+      box.style.border = '2px solid red';
+      box.style.boxShadow = 'none';
+    });
+
+    container.appendChild(box);
+  });
+
+  document.body.appendChild(container);
+}
+
+// Function to show/hide recording indicator
+function toggleRecordingIndicator(show) {
+  // Remove existing indicator if any
+  const existingIndicator = document.getElementById('recording-indicator');
+  if (existingIndicator) {
+    existingIndicator.remove();
+  }
+
+  if (show) {
+    // Create recording indicator
+    const indicator = document.createElement('div');
+    indicator.id = 'recording-indicator';
+    indicator.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      background: #00ff00;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,255,0,0.5);
+      animation: pulse 1.5s infinite;
+      z-index: 1000000;
+    `;
+
+    // Add pulse animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(indicator);
+  }
+}
+
+// Listen for extension icon click
+chrome.action.onClicked.addListener((tab) => {
+  isExtensionActive = !isExtensionActive; // Toggle state
+  
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    function: toggleRecordingIndicator,
+    args: [isExtensionActive]
+  });
+});
+
 // Listen for keyboard shortcut
 chrome.commands.onCommand.addListener((command) => {
-  if (command === 'capture-screenshot') {
+  if (command === 'capture-screenshot' && isExtensionActive) {
     // Get the current tab
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
@@ -92,52 +192,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Required for async response
   }
 });
-
-// Function to inject bounding boxes into the page
-function injectBoundingBoxes(boxes) {
-  // Create a container for the boxes
-  const container = document.createElement('div');
-  container.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 999999;
-  `;
-
-  // Create boxes
-  boxes.forEach(([x1, y1, x2, y2]) => {
-    const box = document.createElement('div');
-    box.style.cssText = `
-      position: absolute;
-      left: ${x1}px;
-      top: ${y1}px;
-      width: ${x2 - x1}px;
-      height: ${y2 - y1}px;
-      border: 2px solid red;
-      pointer-events: auto;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    `;
-
-    // Add hover effect
-    box.addEventListener('mouseover', () => {
-      box.style.border = '2px solid #00ff00';
-      box.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
-    });
-
-    box.addEventListener('mouseout', () => {
-      box.style.border = '2px solid red';
-      box.style.boxShadow = 'none';
-    });
-
-    container.appendChild(box);
-  });
-
-  document.body.appendChild(container);
-}
 
 // Listen for the capture button click
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
