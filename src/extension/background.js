@@ -48,7 +48,43 @@ function injectBoundingBoxes(boxes) {
     });
 
     // Add click handler to crop and search
-    boxElement.addEventListener('click', async () => {
+    boxElement.addEventListener('click', async (event) => {
+      event.stopPropagation();
+      // Remove all other bounding boxes except the clicked one
+      const allBoxes = Array.from(container.children);
+      allBoxes.forEach(child => {
+        if (child !== boxElement) {
+          child.remove();
+        }
+      });
+      // Show loading spinner
+      let loader = document.getElementById('popup-loader');
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'popup-loader';
+        loader.style.cssText = `
+          position: fixed;
+          top: 36px;
+          right: 36px;
+          z-index: 2147483647;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          background: rgba(255,255,255,0.85);
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        `;
+        loader.innerHTML = `
+          <svg width="28" height="28" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
+              <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        `;
+        document.body.appendChild(loader);
+      }
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = Math.round((x2 - x1) * scaleX);
@@ -75,7 +111,7 @@ function injectBoundingBoxes(boxes) {
             max-height: 88vh;
             overflow-y: auto;
             background: #f9f9fb;
-            padding: 18px 8px 18px 8px;
+            padding: 8px 8px 18px 8px;
             border-radius: 14px;
             box-shadow: 0 4px 24px rgba(0,0,0,0.10);
             z-index: 2147483647;
@@ -165,6 +201,26 @@ function injectBoundingBoxes(boxes) {
               background: #f3f3f3;
               color: #222;
             }
+            .custom-popup .try-on-btn {
+              margin-top: 0px;
+              margin-bottom: 2px;
+              padding: 5px 16px;
+              background: linear-gradient(90deg, #ff5858 0%, #f857a6 100%);
+              color: #fff;
+              border: none;
+              border-radius: 6px;
+              font-size: 12.5px;
+              font-weight: 600;
+              cursor: pointer;
+              box-shadow: 0 1px 4px rgba(248,87,166,0.08);
+              transition: background 0.18s, box-shadow 0.18s;
+              outline: none;
+              letter-spacing: 0.01em;
+            }
+            .custom-popup .try-on-btn:hover {
+              background: linear-gradient(90deg, #f857a6 0%, #ff5858 100%);
+              box-shadow: 0 2px 8px rgba(248,87,166,0.16);
+            }
           `;
           document.head.appendChild(style);
           popup.classList.add('custom-popup');
@@ -182,6 +238,7 @@ function injectBoundingBoxes(boxes) {
                   <div class="product-name"><strong>${result.name}</strong></div>
                   <div class="product-brand">${result.brand}</div>
                   <div class="product-price">${result.price}</div>
+                  <button class="try-on-btn" type="button" onclick="event.preventDefault(); /* TODO: Call try-on API here */">Try it on</button>
                 </a>
               `).join('')}
             </div>
@@ -189,6 +246,9 @@ function injectBoundingBoxes(boxes) {
           // Move close button to the top
           const closeButton = popup.querySelector('.close-btn');
           closeButton.onclick = () => popup.remove();
+          // Remove loading spinner if present
+          const loader = document.getElementById('popup-loader');
+          if (loader) loader.remove();
           document.body.appendChild(popup);
         } catch (error) {
           console.error('Error searching products:', error);
@@ -327,24 +387,67 @@ chrome.commands.onCommand.addListener((command) => {
                           top: ${Math.round(y1 * scaleY) + scrollY}px;
                           width: ${Math.round((x2 - x1) * scaleX)}px;
                           height: ${Math.round((y2 - y1) * scaleY)}px;
-                          border: 2px solid red;
+                          border: 2.5px solid #fff;
+                          background: rgba(255,255,255,0.13);
+                          border-radius: 8px;
+                          box-shadow: 0 8px 32px 0 rgba(0,0,0,0.22);
                           pointer-events: auto;
                           cursor: pointer;
-                          transition: all 0.2s ease;
+                          transition: border-color 0.18s, border-width 0.18s, box-shadow 0.18s, background 0.18s;
                           box-sizing: border-box;
                         `;
                         // Add hover effect
                         boxElement.addEventListener('mouseover', () => {
-                          boxElement.style.border = '2px solid #00ff00';
-                          boxElement.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
+                          boxElement.style.borderColor = '#e60023';
+                          boxElement.style.borderWidth = '3px';
+                          boxElement.style.background = 'rgba(255,255,255,0.18)';
+                          boxElement.style.boxShadow = '0 12px 36px 0 rgba(230,0,35,0.22)';
                         });
                         boxElement.addEventListener('mouseout', () => {
-                          boxElement.style.border = '2px solid red';
-                          boxElement.style.boxShadow = 'none';
+                          boxElement.style.borderColor = '#fff';
+                          boxElement.style.borderWidth = '2.5px';
+                          boxElement.style.background = 'rgba(255,255,255,0.13)';
+                          boxElement.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.22)';
                         });
 
                         // Add click handler to crop and search
-                        boxElement.addEventListener('click', async () => {
+                        boxElement.addEventListener('click', async (event) => {
+                          event.stopPropagation();
+                          // Remove all other bounding boxes except the clicked one
+                          const allBoxes = Array.from(container.children);
+                          allBoxes.forEach(child => {
+                            if (child !== boxElement) {
+                              child.remove();
+                            }
+                          });
+                          // Show loading spinner
+                          let loader = document.getElementById('popup-loader');
+                          if (!loader) {
+                            loader = document.createElement('div');
+                            loader.id = 'popup-loader';
+                            loader.style.cssText = `
+                              position: fixed;
+                              top: 36px;
+                              right: 36px;
+                              z-index: 2147483647;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              width: 48px;
+                              height: 48px;
+                              background: rgba(255,255,255,0.85);
+                              border-radius: 50%;
+                              box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+                            `;
+                            loader.innerHTML = `
+                              <svg width="28" height="28" viewBox="0 0 50 50">
+                                <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
+                                  <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite"/>
+                                </circle>
+                              </svg>
+                            `;
+                            document.body.appendChild(loader);
+                          }
                           const canvas = document.createElement('canvas');
                           const ctx = canvas.getContext('2d');
                           canvas.width = Math.round((x2 - x1) * scaleX);
@@ -371,7 +474,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 max-height: 88vh;
                                 overflow-y: auto;
                                 background: #f9f9fb;
-                                padding: 18px 8px 18px 8px;
+                                padding: 8px 8px 18px 8px;
                                 border-radius: 14px;
                                 box-shadow: 0 4px 24px rgba(0,0,0,0.10);
                                 z-index: 2147483647;
@@ -461,6 +564,26 @@ chrome.commands.onCommand.addListener((command) => {
                                   background: #f3f3f3;
                                   color: #222;
                                 }
+                                .custom-popup .try-on-btn {
+                                  margin-top: 0px;
+                                  margin-bottom: 2px;
+                                  padding: 5px 16px;
+                                  background: linear-gradient(90deg, #ff5858 0%, #f857a6 100%);
+                                  color: #fff;
+                                  border: none;
+                                  border-radius: 6px;
+                                  font-size: 12.5px;
+                                  font-weight: 600;
+                                  cursor: pointer;
+                                  box-shadow: 0 1px 4px rgba(248,87,166,0.08);
+                                  transition: background 0.18s, box-shadow 0.18s;
+                                  outline: none;
+                                  letter-spacing: 0.01em;
+                                }
+                                .custom-popup .try-on-btn:hover {
+                                  background: linear-gradient(90deg, #f857a6 0%, #ff5858 100%);
+                                  box-shadow: 0 2px 8px rgba(248,87,166,0.16);
+                                }
                               `;
                               document.head.appendChild(style);
                               popup.classList.add('custom-popup');
@@ -478,6 +601,7 @@ chrome.commands.onCommand.addListener((command) => {
                                       <div class="product-name"><strong>${result.name}</strong></div>
                                       <div class="product-brand">${result.brand}</div>
                                       <div class="product-price">${result.price}</div>
+                                      <button class="try-on-btn" type="button" onclick="event.preventDefault(); /* TODO: Call try-on API here */">Try it on</button>
                                     </a>
                                   `).join('')}
                                 </div>
@@ -485,6 +609,9 @@ chrome.commands.onCommand.addListener((command) => {
                               // Move close button to the top
                               const closeButton = popup.querySelector('.close-btn');
                               closeButton.onclick = () => popup.remove();
+                              // Remove loading spinner if present
+                              const loader = document.getElementById('popup-loader');
+                              if (loader) loader.remove();
                               document.body.appendChild(popup);
                             } catch (error) {
                               console.error('Error searching products:', error);
@@ -495,6 +622,24 @@ chrome.commands.onCommand.addListener((command) => {
                         container.appendChild(boxElement);
                       });
                       document.body.appendChild(container);
+
+                      // Add a dark overlay to the page to highlight bounding boxes
+                      let overlay = document.getElementById('bb-overlay-shadow');
+                      if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'bb-overlay-shadow';
+                        overlay.style.cssText = `
+                          position: fixed;
+                          top: 0;
+                          left: 0;
+                          width: 100vw;
+                          height: 100vh;
+                          background: rgba(30, 30, 30, 0.32);
+                          z-index: 999998;
+                          pointer-events: none;
+                        `;
+                        document.body.appendChild(overlay);
+                      }
                     };
                     img.src = dataUrl;
                   },
