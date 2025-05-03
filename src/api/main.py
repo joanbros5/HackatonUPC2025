@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Tuple
-
+from .utils import *
 app = FastAPI()
 
 # Enable CORS
@@ -14,14 +14,14 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-@app.get("/boxes")
-async def get_boxes():
-    # Mock bounding boxes in the format [x1, y1, x2, y2]
-    boxes = [
-        [50, 50, 250, 250],    # First box: top-left=(50,50), bottom-right=(250,250)
-        [300, 100, 550, 280],  # Second box: top-left=(300,100), bottom-right=(550,280)
-        [200, 300, 420, 490]   # Third box: top-left=(200,300), bottom-right=(420,490)
-    ]
+@app.post("/boxes")
+async def get_boxes(file: UploadFile = File(...)):
+    # Leer la imagen del archivo subido
+    contents = await file.read()
+
+    # Aquí pasarías la imagen a tu función de detección
+    boxes = detect_people_in_image(contents)  # Asegúrate de que tu función acepte bytes
+
     return {"boxes": boxes}
 
 if __name__ == "__main__":

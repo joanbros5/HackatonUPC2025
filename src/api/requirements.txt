@@ -6,3 +6,5 @@ pydantic==2.4.2
 google-search-results
 pillow
 python-dotenv
+ultralytics
+python-multipart
