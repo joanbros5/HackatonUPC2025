@@ -41,7 +41,7 @@ def get_token() -> str:
 
 def search_products(image_url: str) -> list[dict]:
     """
-    Search products using an image URL
+    Search products using an image URL and return a list of products
     """
     try:
         # Get access token
