@@ -47,6 +47,7 @@ def detect_people_in_image(image_bytes):
     image = Image.open(BytesIO(image_bytes))
     results = model(image, classes=0)
     boxes = results[0].boxes.xyxy.tolist()
+    print(boxes)
     return boxes
 
 def image_to_tmp_url(image_bytes):

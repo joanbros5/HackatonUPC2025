@@ -11,7 +11,7 @@ function injectBoundingBoxes(boxes) {
   // Create a container for the boxes
   const container = document.createElement('div');
   container.style.cssText = `
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -22,31 +22,32 @@ function injectBoundingBoxes(boxes) {
 
   // Create boxes
   boxes.forEach(([x1, y1, x2, y2]) => {
-    const box = document.createElement('div');
-    box.style.cssText = `
+    const boxElement = document.createElement('div');
+    boxElement.style.cssText = `
       position: absolute;
-      left: ${x1}px;
-      top: ${y1}px;
-      width: ${x2 - x1}px;
-      height: ${y2 - y1}px;
+      left: ${Math.round(x1)}px;
+      top: ${Math.round(y1)}px;
+      width: ${Math.round(x2 - x1)}px;
+      height: ${Math.round(y2 - y1)}px;
       border: 2px solid red;
       pointer-events: auto;
       cursor: pointer;
       transition: all 0.2s ease;
+      box-sizing: border-box;
     `;
 
     // Add hover effect
-    box.addEventListener('mouseover', () => {
-      box.style.border = '2px solid #00ff00';
-      box.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
+    boxElement.addEventListener('mouseover', () => {
+      boxElement.style.border = '2px solid #00ff00';
+      boxElement.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
     });
 
-    box.addEventListener('mouseout', () => {
-      box.style.border = '2px solid red';
-      box.style.boxShadow = 'none';
+    boxElement.addEventListener('mouseout', () => {
+      boxElement.style.border = '2px solid red';
+      boxElement.style.boxShadow = 'none';
     });
 
-    container.appendChild(box);
+    container.appendChild(boxElement);
   });
 
   document.body.appendChild(container);
@@ -123,19 +124,28 @@ chrome.commands.onCommand.addListener((command) => {
               return fetch('http://localhost:8000/boxes', {
                 method: 'POST',
                 body: formData
-              });
+              }).then(response => response.json()).then(data => ({ data, dataUrl }));
             })
-            .then(response => response.json())
-            .then(data => {
-              // Execute the processing directly in the current tab
+            .then(({ data, dataUrl }) => {
+              console.log('API Response:', data); // Debug log
+              // Inject the drawing logic into the page context
               chrome.scripting.executeScript({
                 target: { tabId: tabs[0].id },
-                function: (boxes) => {
-                  try {
-                    // Create a container for the boxes
+                function: (boxes, dataUrl) => {
+                  // This code runs in the page context!
+                  const img = new Image();
+                  img.onload = function() {
+                    const screenshotWidth = img.width;
+                    const screenshotHeight = img.height;
+                    const pageWidth = document.documentElement.clientWidth;
+                    const pageHeight = document.documentElement.clientHeight;
+                    const scaleX = pageWidth / screenshotWidth;
+                    const scaleY = pageHeight / screenshotHeight;
+
+                    // Draw boxes
                     const container = document.createElement('div');
                     container.style.cssText = `
-                      position: fixed;
+                      position: absolute;
                       top: 0;
                       left: 0;
                       width: 100%;
@@ -143,42 +153,36 @@ chrome.commands.onCommand.addListener((command) => {
                       pointer-events: none;
                       z-index: 999999;
                     `;
-
-                    // Create boxes
                     boxes.forEach(([x1, y1, x2, y2]) => {
-                      const box = document.createElement('div');
-                      box.style.cssText = `
+                      const boxElement = document.createElement('div');
+                      boxElement.style.cssText = `
                         position: absolute;
-                        left: ${x1}px;
-                        top: ${y1}px;
-                        width: ${x2 - x1}px;
-                        height: ${y2 - y1}px;
+                        left: ${Math.round(x1 * scaleX)}px;
+                        top: ${Math.round(y1 * scaleY)}px;
+                        width: ${Math.round((x2 - x1) * scaleX)}px;
+                        height: ${Math.round((y2 - y1) * scaleY)}px;
                         border: 2px solid red;
                         pointer-events: auto;
                         cursor: pointer;
                         transition: all 0.2s ease;
+                        box-sizing: border-box;
                       `;
-
                       // Add hover effect
-                      box.addEventListener('mouseover', () => {
-                        box.style.border = '2px solid #00ff00';
-                        box.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
+                      boxElement.addEventListener('mouseover', () => {
+                        boxElement.style.border = '2px solid #00ff00';
+                        boxElement.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
                       });
-
-                      box.addEventListener('mouseout', () => {
-                        box.style.border = '2px solid red';
-                        box.style.boxShadow = 'none';
+                      boxElement.addEventListener('mouseout', () => {
+                        boxElement.style.border = '2px solid red';
+                        boxElement.style.boxShadow = 'none';
                       });
-
-                      container.appendChild(box);
+                      container.appendChild(boxElement);
                     });
-
                     document.body.appendChild(container);
-                  } catch (error) {
-                    console.error('Error:', error);
-                  }
+                  };
+                  img.src = dataUrl;
                 },
-                args: [data.boxes]
+                args: [data.boxes || [], dataUrl]
               });
             })
             .catch(error => {
