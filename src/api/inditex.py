@@ -59,7 +59,7 @@ def search_products(image_url: str) -> list[dict]:
         params = {
             "image": image_url,
             "page": 1,
-            "perPage": 5
+            "perPage": 1
         }
         
         

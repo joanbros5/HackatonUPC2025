@@ -658,16 +658,9 @@ chrome.commands.onCommand.addListener((command) => {
                                 })
                                   .then(response => response.json())
                                   .then(data => {
-                                    const dataUrl = data.url;
+                                    const tryOnImg = data.url;
                                     console.log("DATA_URL:", dataUrl);
-                                  })
-                                  .catch(error => {
-                                    console.error("Error fetching try-clothing:", error);
-                                  });
-
-
-                                console.log("DATA_URL: ", dataUrl)
-                                const tryOnImg = "images/icon.png"
+                                                                   //const tryOnImg = dataUrl
                                 // Create a popup overlay for the try-on result
                                 let tryOnPopup = document.getElementById('try-on-popup');
                                 if (tryOnPopup) tryOnPopup.remove();
@@ -690,6 +683,13 @@ chrome.commands.onCommand.addListener((command) => {
                                 const closeBtn = tryOnPopup.querySelector('button');
                                 closeBtn.onclick = () => tryOnPopup.remove();
                                 document.body.appendChild(tryOnPopup);
+                                  })
+                                  .catch(error => {
+                                    console.error("Error fetching try-clothing:", error);
+                                  });
+
+
+
                               };
                             });
                             // Move close button to the top
