@@ -4,10 +4,8 @@ from pydantic import BaseModel
 from typing import List, Tuple
 from utils import *
 from inditex import *
+import requests
 
-import cv2
-import numpy as np
-import mediapipe as mp
 
 
 app = FastAPI()
@@ -69,6 +67,8 @@ async def get_products(file: UploadFile = File(...)):
 
     return {"results": images_with_links}
 
+# Comment all the code below
+"""
 @app.post("/get-contour")
 async def get_contour(file: UploadFile = File(...)):
     # Decode image from bytes
@@ -104,6 +104,7 @@ async def get_contour(file: UploadFile = File(...)):
             contour_points.append([int(point[0][0]), int(point[0][1])])
 
     return {"contour": contour_points}
+"""
 
 if __name__ == "__main__":
     import uvicorn
