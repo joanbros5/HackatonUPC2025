@@ -1,10 +1,14 @@
-from serpapi import GoogleSearch
-from PIL import Image
-from io import BytesIO
-import requests
 import os
-from dotenv import load_dotenv
+from io import BytesIO
 
+import requests
+import requests
+from PIL import Image
+from dotenv import load_dotenv
+from serpapi import GoogleSearch
+from ultralytics import YOLO
+
+# Load YOLO-v8 model
 _ = load_dotenv()
 
 def buscar_imagen_google(name: str, brand: str, id: str) -> Image.Image:
@@ -34,3 +38,11 @@ def buscar_imagen_google(name: str, brand: str, id: str) -> Image.Image:
     else:
         print("No se encontraron imágenes.")
         return None
+
+
+def detect_people_in_image(image_bytes):
+    model = YOLO("yolov8n.pt")
+    image = Image.open(BytesIO(image_bytes))
+    results = model(image, classes=0)
+    boxes = results[0].boxes.xyxy.tolist()
+    return boxes
