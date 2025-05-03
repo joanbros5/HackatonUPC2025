@@ -60,14 +60,12 @@ def image_to_tmp_url(image_bytes):
     random_id = str(uuid.uuid4())
     file_name = f"{random_id}.png"
     files = {'file': (file_name, buffer)}
-    #response = requests.post('https://tmpfiles.org/api/v1/upload', files=files)
-    #data = response.json()
-    #image_url = data['data']['url']
+    response = requests.post('https://tmpfiles.org/api/v1/upload', files=files)
+    data = response.json()
+    image_url = data['data']['url']
 
-    # Get temp url
-    #response = requests.get(image_url)
-    #soup = BeautifulSoup(response.content, 'html.parser')
-    #temp_url = soup.find('img')['src']
-    temp_url = "https://tmpfiles.org/dl/26940801/1a4865e5-bdae-4c4c-8bb6-efd5dd9d5815.png"
+    response = requests.get(image_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    temp_url = soup.find('img')['src']
 
     return temp_url
