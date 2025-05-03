@@ -251,7 +251,9 @@ function injectBoundingBoxes(boxes) {
             `).join('')}
           </div>
         `;
-        // Attach the event handler programmatically
+        document.body.appendChild(popup);
+
+        // Now that the popup is in the DOM, we can safely attach event handlers
         popup.querySelectorAll('.try-on-btn').forEach((btn, idx) => {
           btn.onclick = async (e) => {
             e.preventDefault();
@@ -286,8 +288,9 @@ function injectBoundingBoxes(boxes) {
                 <button id="tryOnCloseButton" style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
               </div>
             `;
+            document.body.appendChild(tryOnPopup);
 
-            // Attach close handler programmatically
+            // Now that the try-on popup is in the DOM, we can safely attach its close handler
             const closeBtn = document.getElementById('tryOnCloseButton');
             closeBtn.onclick = () => {
               tryOnPopup.remove();
@@ -299,8 +302,6 @@ function injectBoundingBoxes(boxes) {
                 }
               });
             };
-
-            document.body.appendChild(tryOnPopup);
 
             // Fetch the try-on result
             fetch('http://localhost:8000/try-clothing', {
@@ -338,6 +339,7 @@ function injectBoundingBoxes(boxes) {
               });
           };
         });
+
         // Move close button to the top
         const closeButton = popup.querySelector('.close-btn');
         closeButton.onclick = () => {
@@ -362,7 +364,6 @@ function injectBoundingBoxes(boxes) {
         // Remove loading spinner if present
         const loader2 = document.getElementById('popup-loader');
         if (loader2) loader2.remove();
-        document.body.appendChild(popup);
       }, 'image/png');
     });
 
@@ -734,7 +735,9 @@ chrome.commands.onCommand.addListener((command) => {
                                 `).join('')}
                               </div>
                             `;
-                            // Attach the event handler programmatically
+                            document.body.appendChild(popup);
+
+                            // Now that the popup is in the DOM, we can safely attach event handlers
                             popup.querySelectorAll('.try-on-btn').forEach((btn, idx) => {
                               btn.onclick = async (e) => {
                                 e.preventDefault();
@@ -769,8 +772,9 @@ chrome.commands.onCommand.addListener((command) => {
                                     <button id="tryOnCloseButton" style="padding: 6px 18px; border-radius: 6px; background: #e60023; color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer;">Close</button>
                                   </div>
                                 `;
+                                document.body.appendChild(tryOnPopup);
 
-                                // Attach close handler programmatically
+                                // Now that the try-on popup is in the DOM, we can safely attach its close handler
                                 const closeBtn = document.getElementById('tryOnCloseButton');
                                 closeBtn.onclick = () => {
                                   tryOnPopup.remove();
@@ -782,8 +786,6 @@ chrome.commands.onCommand.addListener((command) => {
                                     }
                                   });
                                 };
-
-                                document.body.appendChild(tryOnPopup);
 
                                 // Fetch the try-on result
                                 fetch('http://localhost:8000/try-clothing', {
@@ -821,6 +823,7 @@ chrome.commands.onCommand.addListener((command) => {
                                   });
                               };
                             });
+
                             // Move close button to the top
                             const closeButton = popup.querySelector('.close-btn');
                             closeButton.onclick = () => {
@@ -842,10 +845,6 @@ chrome.commands.onCommand.addListener((command) => {
                                     }
                                 });
                             };
-                            // Remove loading spinner if present
-                            const loader2 = document.getElementById('popup-loader');
-                            if (loader2) loader2.remove();
-                            document.body.appendChild(popup);
                           }, 'image/png');
                         });
 
