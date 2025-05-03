@@ -1,9 +1,11 @@
+import io
 import os
+import uuid
 from io import BytesIO
 
 import requests
-import requests
 from PIL import Image
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from serpapi import GoogleSearch
 from ultralytics import YOLO
@@ -46,3 +48,22 @@ def detect_people_in_image(image_bytes):
     results = model(image, classes=0)
     boxes = results[0].boxes.xyxy.tolist()
     return boxes
+
+def image_to_tmp_url(image_bytes):
+    buffer = io.BytesIO()
+    buffer.write(image_bytes.getvalue())
+    buffer.seek(0)
+
+    random_id = str(uuid.uuid4())
+    file_name = f"{random_id}.png"
+    files = {'file': (file_name, buffer)}
+    response = requests.post('https://tmpfiles.org/api/v1/upload', files=files)
+    data = response.json()
+    image_url = data['data']['url']
+
+    # Get temp url
+    response = requests.get(image_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    temp_url = soup.find('img')['src']
+
+    return temp_url

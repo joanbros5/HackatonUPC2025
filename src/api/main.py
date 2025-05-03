@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Tuple
 from .utils import *
+from .inditex import *
 app = FastAPI()
 
 # Enable CORS
@@ -23,6 +24,17 @@ async def get_boxes(file: UploadFile = File(...)):
     boxes = detect_people_in_image(contents)  # Asegúrate de que tu función acepte bytes
 
     return {"boxes": boxes}
+
+@app.post("/search-products")
+async def get_boxes(file: UploadFile = File(...)):
+    # Leer la imagen del archivo subido
+    contents = await file.read()
+    temp_url = image_to_tmp_url(contents)
+    results = search_products(temp_url)
+
+    return {"results": results}
+
+
 
 if __name__ == "__main__":
     import uvicorn
