@@ -257,7 +257,7 @@ function injectBoundingBoxes(boxes) {
             const product = data2.results[idx];
             const formData = new FormData();
             formData.append('clothing_image_url', product["image_url"]);
-            formData.append('avatar_image_url', "https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png");
+            formData.append('avatar_image_url', "https://raw.githubusercontent.com/joanbros5/HackatonUPC2025/refs/heads/main/a_chill_guy.jpg");
             
             // Create a popup overlay for the try-on result immediately
             let tryOnPopup = document.getElementById('try-on-popup');
@@ -273,7 +273,7 @@ function injectBoundingBoxes(boxes) {
             `;
             tryOnPopup.innerHTML = `
               <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                <img id="tryOnResultImage" src="https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                <img id="tryOnResultImage" src="https://raw.githubusercontent.com/joanbros5/HackatonUPC2025/refs/heads/main/a_chill_guy.jpg" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
                 <div id="tryOnLoadingIndicator" style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
                   <svg width="24" height="24" viewBox="0 0 50 50">
                     <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
@@ -733,7 +733,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 const product = data2.results[idx];
                                 const formData = new FormData();
                                 formData.append('clothing_image_url', product["image_url"]);
-                                formData.append('avatar_image_url', "https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png");
+                                formData.append('avatar_image_url', "https://raw.githubusercontent.com/joanbros5/HackatonUPC2025/refs/heads/main/a_chill_guy.jpg");
                                 
                                 // Create a popup overlay for the try-on result
                                 let tryOnPopup = document.getElementById('try-on-popup');
@@ -749,7 +749,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 `;
                                 tryOnPopup.innerHTML = `
                                   <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                                    <img id="tryOnResultImage" src="https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                                    <img id="tryOnResultImage" src="https://raw.githubusercontent.com/joanbros5/HackatonUPC2025/refs/heads/main/a_chill_guy.jpg" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
                                     <div id="tryOnLoadingIndicator" style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
                                       <svg width="24" height="24" viewBox="0 0 50 50">
                                         <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
