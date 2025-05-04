@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Screenshot Analyzer",
+  "name": "IndiSearch",
   "version": "1.0",
-  "description": "Analyze screenshots with bounding boxes",
+  "description": "Analyze the screen to detect, search and try-on for people's clothing through Inditex retail brands",
   "permissions": [
     "activeTab",
     "scripting"
@@ -19,7 +19,7 @@
         "default": "Ctrl+Shift+S",
         "mac": "Command+Shift+S"
       },
-      "description": "Capture and analyze screenshot"
+      "description": "Capture and analyze screen"
     }
   },
   "action": {
