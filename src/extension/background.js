@@ -479,8 +479,8 @@ chrome.commands.onCommand.addListener((command) => {
                     const pageHeight = document.documentElement.clientHeight;
                     const scaleX = pageWidth / screenshotWidth;
                     const scaleY = pageHeight / screenshotHeight;
-                      const scrollY = window.scrollY || document.documentElement.scrollTop;
-                      const scrollX = window.scrollX || document.documentElement.scrollLeft;
+                    const scrollY = window.scrollY || document.documentElement.scrollTop;
+                    const scrollX = window.scrollX || document.documentElement.scrollLeft;
 
                     // Draw boxes
                     const container = document.createElement('div');
@@ -497,40 +497,39 @@ chrome.commands.onCommand.addListener((command) => {
                       const boxElement = document.createElement('div');
                       boxElement.style.cssText = `
                         position: absolute;
-                          left: ${Math.round(x1 * scaleX) + scrollX}px;
-                          top: ${Math.round(y1 * scaleY) + scrollY}px;
+                        left: ${Math.round(x1 * scaleX) + scrollX}px;
+                        top: ${Math.round(y1 * scaleY) + scrollY}px;
                         width: ${Math.round((x2 - x1) * scaleX)}px;
                         height: ${Math.round((y2 - y1) * scaleY)}px;
-                          border: 2.5px solid #fff;
-                          background: rgba(255,255,255,0.13);
-                          border-radius: 8px;
-                          box-shadow: 0 8px 32px 0 rgba(0,0,0,0.22);
+                        border: 2.5px solid #fff;
+                        background: rgba(255,255,255,0.13);
+                        border-radius: 8px;
+                        box-shadow: 0 8px 32px 0 rgba(0,0,0,0.22);
                         pointer-events: auto;
                         cursor: pointer;
-                          transition: border-color 0.18s, border-width 0.18s, box-shadow 0.18s, background 0.18s;
+                        transition: border-color 0.18s, border-width 0.18s, box-shadow 0.18s, background 0.18s;
                         box-sizing: border-box;
                       `;
                       // Add hover effect
                       boxElement.addEventListener('mouseover', () => {
-                          boxElement.style.borderColor = '#e60023';
-                          boxElement.style.borderWidth = '3px';
-                          boxElement.style.background = 'rgba(255,255,255,0.18)';
-                          boxElement.style.boxShadow = '0 12px 36px 0 rgba(230,0,35,0.22)';
+                        boxElement.style.borderColor = '#e60023';
+                        boxElement.style.borderWidth = '3px';
+                        boxElement.style.background = 'rgba(255,255,255,0.18)';
+                        boxElement.style.boxShadow = '0 12px 36px 0 rgba(230,0,35,0.22)';
                       });
                       boxElement.addEventListener('mouseout', () => {
-                          boxElement.style.borderColor = '#fff';
-                          boxElement.style.borderWidth = '2.5px';
-                          boxElement.style.background = 'rgba(255,255,255,0.13)';
-                          boxElement.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.22)';
+                        boxElement.style.borderColor = '#fff';
+                        boxElement.style.borderWidth = '2.5px';
+                        boxElement.style.background = 'rgba(255,255,255,0.13)';
+                        boxElement.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.22)';
                         });
 
                         // Add click handler to crop and search
                         boxElement.addEventListener('click', async (event) => {
                           event.stopPropagation();
-                          // Store reference to the selected box
                           const selectedBox = boxElement;
-                          // Remove all other bounding boxes except the clicked one
                           const allBoxes = Array.from(container.children);
+                          // Remove all other bounding boxes except the clicked one
                           allBoxes.forEach(child => {
                             if (child !== boxElement) {
                               child.remove();
@@ -544,9 +543,8 @@ chrome.commands.onCommand.addListener((command) => {
                           canvas.height = Math.round((y2 - y1) * scaleY);
                           ctx.drawImage(img, x1, y1, x2 - x1, y2 - y1, 0, 0, canvas.width, canvas.height);
 
-                          // Directly send to /search-products (skip /get-contour)
+                          // Send to /search-products
                           canvas.toBlob(async (blob) => {
-                            // Show loading spinner
                             let loader = document.getElementById('popup-loader');
                             if (!loader) {
                               loader = document.createElement('div');
@@ -604,7 +602,7 @@ chrome.commands.onCommand.addListener((command) => {
                               scrollbar-color: #bbb #f5f5f5;
                               border: 1px solid #ececec;
                             `;
-                            // Add custom scrollbar for Webkit browsers
+                            // Add custom scrollbar
                             const style = document.createElement('style');
                             style.textContent = `
                               .custom-popup::-webkit-scrollbar {
@@ -729,7 +727,6 @@ chrome.commands.onCommand.addListener((command) => {
                             `;
                             document.body.appendChild(popup);
 
-                            // Now that the popup is in the DOM, we can safely attach event handlers
                             popup.querySelectorAll('.try-on-btn').forEach((btn, idx) => {
                               btn.onclick = async (e) => {
                                 e.preventDefault();
@@ -738,7 +735,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 formData.append('clothing_image_url', product["image_url"]);
                                 formData.append('avatar_image_url', "https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png");
                                 
-                                // Create a popup overlay for the try-on result immediately
+                                // Create a popup overlay for the try-on result
                                 let tryOnPopup = document.getElementById('try-on-popup');
                                 if (tryOnPopup) tryOnPopup.remove();
                                 tryOnPopup = document.createElement('div');
@@ -766,7 +763,6 @@ chrome.commands.onCommand.addListener((command) => {
                                 `;
                                 document.body.appendChild(tryOnPopup);
 
-                                // Now that the try-on popup is in the DOM, we can safely attach its close handler
                                 const closeBtn = document.getElementById('tryOnCloseButton');
                                 closeBtn.onclick = () => {
                                   tryOnPopup.remove();
@@ -779,16 +775,12 @@ chrome.commands.onCommand.addListener((command) => {
                                 })
                                   .then(response => response.json())
                                   .then(data => {
-                                    console.log('Try-on result received:', data);
                                     const tryOnImg = data.url;
-                                    console.log('Try-on image URL:', tryOnImg);
                                     // Update the image in the popup
                                     const imgElement = document.getElementById('tryOnResultImage');
-                                    console.log('Image element found:', imgElement);
                                     if (imgElement) {
                                       imgElement.src = tryOnImg;
                                       console.log('Image source updated');
-                                      // Remove the loading indicator
                                       const loadingDiv = document.getElementById('tryOnLoadingIndicator');
                                       if (loadingDiv) {
                                         loadingDiv.remove();
@@ -813,21 +805,17 @@ chrome.commands.onCommand.addListener((command) => {
                             const closeButton = popup.querySelector('.close-btn');
                             closeButton.onclick = () => {
                                 popup.remove();
-                                // Remove the selected bounding box
                                 if (selectedBox) {
                                     selectedBox.remove();
                                 }
-                                // Remove the dark overlay if it exists
                                 const overlay = document.getElementById('bb-overlay-shadow');
                                 if (overlay) {
                                     overlay.remove();
                                 }
-                                // Remove the loading spinner if it exists
                                 const loader = document.getElementById('popup-loader');
                                 if (loader) {
                                     loader.remove();
                                 }
-                                // Resume all videos on the page
                                 const videos = document.querySelectorAll('video');
                                 videos.forEach(video => {
                                     if (video.paused) {
@@ -887,17 +875,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.error('Error fetching boxes:', error);
         sendResponse({ error: 'Failed to fetch boxes' });
       });
-    return true; // Required for async response
+    return true; // async response
   }
 });
 
 // Listen for the capture button click
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'capture') {
-    // Get the current tab
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
-        // Execute the script to inject bounding boxes
         chrome.scripting.executeScript({
           target: { tabId: tabs[0].id },
           function: injectBoundingBoxes,
