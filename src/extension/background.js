@@ -6,10 +6,8 @@ chrome.runtime.onInstalled.addListener(() => {
 // Track extension state
 let isExtensionActive = false;
 
-
 // Function to inject bounding boxes into the page
 function injectBoundingBoxes(boxes) {
-  // Create a container for the boxes
   const container = document.createElement('div');
   container.style.cssText = `
     position: absolute;
@@ -37,7 +35,6 @@ function injectBoundingBoxes(boxes) {
       box-sizing: border-box;
     `;
 
-    // Add hover effect
     boxElement.addEventListener('mouseover', () => {
       boxElement.style.border = '2px solid #00ff00';
       boxElement.style.boxShadow = '0 0 10px rgba(0,255,0,0.5)';
@@ -260,7 +257,7 @@ function injectBoundingBoxes(boxes) {
             const product = data2.results[idx];
             const formData = new FormData();
             formData.append('clothing_image_url', product["image_url"]);
-            formData.append('avatar_image_url', "https://tmpfiles.org/dl/27001987/dcd87ca4-c77b-4b80-bf54-68411fafc3ea.png");
+            formData.append('avatar_image_url', "https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png");
             
             // Create a popup overlay for the try-on result immediately
             let tryOnPopup = document.getElementById('try-on-popup');
@@ -276,7 +273,7 @@ function injectBoundingBoxes(boxes) {
             `;
             tryOnPopup.innerHTML = `
               <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                <img id="tryOnResultImage" src="https://tmpfiles.org/dl/27001987/dcd87ca4-c77b-4b80-bf54-68411fafc3ea.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                <img id="tryOnResultImage" src="https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
                 <div id="tryOnLoadingIndicator" style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
                   <svg width="24" height="24" viewBox="0 0 50 50">
                     <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">
@@ -739,7 +736,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 const product = data2.results[idx];
                                 const formData = new FormData();
                                 formData.append('clothing_image_url', product["image_url"]);
-                                formData.append('avatar_image_url', "https://tmpfiles.org/dl/27001987/dcd87ca4-c77b-4b80-bf54-68411fafc3ea.png");
+                                formData.append('avatar_image_url', "https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png");
                                 
                                 // Create a popup overlay for the try-on result immediately
                                 let tryOnPopup = document.getElementById('try-on-popup');
@@ -755,7 +752,7 @@ chrome.commands.onCommand.addListener((command) => {
                                 `;
                                 tryOnPopup.innerHTML = `
                                   <div style="background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 24px 24px 16px 24px; display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;">
-                                    <img id="tryOnResultImage" src="https://tmpfiles.org/dl/27001987/dcd87ca4-c77b-4b80-bf54-68411fafc3ea.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
+                                    <img id="tryOnResultImage" src="https://tmpfiles.org/dl/27025306/f6933caa-fc51-41f6-8f6c-6af6e0e0bd63.png" alt="Try On Result" style="max-width: 320px; max-height: 420px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); margin-bottom: 18px;">
                                     <div id="tryOnLoadingIndicator" style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
                                       <svg width="24" height="24" viewBox="0 0 50 50">
                                         <circle cx="25" cy="25" r="20" fill="none" stroke="#e60023" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)">

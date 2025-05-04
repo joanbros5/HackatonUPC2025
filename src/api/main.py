@@ -5,7 +5,6 @@ from inditex import *
 
 import cv2
 import numpy as np
-#import mediapipe as mp
 import requests
 
 
@@ -26,7 +25,6 @@ async def get_boxes(file: UploadFile = File(...)):
     # Read the uploaded file
     contents = await file.read()
     boxes = detect_people_in_image(contents)
-
     return {"boxes": boxes}
 
 
@@ -50,7 +48,7 @@ async def get_products(file: UploadFile = File(...)):
             "price": f"{result['price']['value']['current']} {result['price']['currency']}"
         })
     print(data_to_google)
-    google_images = buscar_imagen_google(data_to_google)
+    google_images = search_google_image(data_to_google)
     if google_images is None:
         return {"results": []}
 
@@ -79,45 +77,6 @@ async def get_try_clothing(
     )
     url = image_to_tmp_url(img)
     return {"url": url}
-
-"""
-@app.post("/get-contour")
-async def get_contour(file: UploadFile = File(...)):
-    # Decode image from bytes
-    contents = await file.read()
-    image_array = np.frombuffer(contents, np.uint8)
-    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
-    if image is None:
-        raise ValueError("Failed to decode image from bytes.")
-
-    # Convert BGR to RGB
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    # MediaPipe Selfie Segmentation
-    mp_selfie_segmentation = mp.solutions.selfie_segmentation
-    with mp_selfie_segmentation.SelfieSegmentation(model_selection=1) as selfie_segmentation:
-        results = selfie_segmentation.process(image_rgb)
-        if results.segmentation_mask is None:
-            raise RuntimeError("Segmentation failed.")
-
-        mask = results.segmentation_mask > 0.5  # Binary mask
-
-    # Create binary mask image
-    mask_uint8 = (mask.astype(np.uint8)) * 255
-
-    # Find contours
-    contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # Extract contour points
-    contour_points = []
-    for contour in contours:
-        for point in contour:
-            contour_points.append([int(point[0][0]), int(point[0][1])])
-
-    return {"contour": contour_points}
-
-"""
 
 if __name__ == "__main__":
     import uvicorn

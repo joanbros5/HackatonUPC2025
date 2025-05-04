@@ -30,13 +30,10 @@ def generate_image(clothing_image_url, avatar_image_url):
         headers=headers)
     return BytesIO(response.content)
 
-
-
-def buscar_imagen_google(data_to_google: list[dict]) -> list[Image.Image]:
+def search_google_image(data_to_google: list[dict]) -> list[Image.Image]:
     api_key = os.getenv("GOOGLE_API_KEY")
     images_found = []
     for data in data_to_google:
-        print(data)
         google_query = f"{data['name']} {data['brand']} {data['id']}"
         params = {
             "engine": "google",
@@ -44,21 +41,20 @@ def buscar_imagen_google(data_to_google: list[dict]) -> list[Image.Image]:
             "tbm": "isch",
             "api_key": api_key
         }
-
         search = GoogleSearch(params)
         results = search.get_dict()
 
         if "images_results" in results and results["images_results"]:
-            primera_imagen = results["images_results"][0]
-            url_image = primera_imagen["original"]
-            print(f"Imagen encontrada: {url_image}")
+            first_image = results["images_results"][0]
+            url_image = first_image["original"]
+            print(f"Imagen found: {url_image}")
             images_found.append(url_image)
         else:
-            print("No se encontraró imágen.")
+            print("Image not found")
             continue
 
     if len(images_found) == 0:
-        print("No se encontraron imágenes.")
+        print("Images not found")
         return None
     return images_found
 
@@ -68,7 +64,6 @@ def detect_people_in_image(image_bytes):
     image = Image.open(BytesIO(image_bytes))
     results = model(image, classes=0)
     boxes = results[0].boxes.xyxy.tolist()
-    print(boxes)
     return boxes
 
 def image_to_tmp_url(image_bytes):
