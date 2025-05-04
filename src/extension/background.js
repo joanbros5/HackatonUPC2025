@@ -294,13 +294,6 @@ function injectBoundingBoxes(boxes) {
             const closeBtn = document.getElementById('tryOnCloseButton');
             closeBtn.onclick = () => {
               tryOnPopup.remove();
-              // Resume all videos on the page
-              const videos = document.querySelectorAll('video');
-              videos.forEach(video => {
-                if (video.paused) {
-                  video.play();
-                }
-              });
             };
 
             // Fetch the try-on result
@@ -353,13 +346,6 @@ function injectBoundingBoxes(boxes) {
             if (overlay) {
                 overlay.remove();
             }
-            // Resume all videos on the page
-            const videos = document.querySelectorAll('video');
-            videos.forEach(video => {
-                if (video.paused) {
-                    video.play();
-                }
-            });
         };
         // Remove loading spinner if present
         const loader2 = document.getElementById('popup-loader');
@@ -416,7 +402,7 @@ function toggleRecordingIndicator(show) {
 // Listen for extension icon click
 chrome.action.onClicked.addListener((tab) => {
   isExtensionActive = !isExtensionActive; // Toggle state
-
+  
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     function: toggleRecordingIndicator,
@@ -456,76 +442,76 @@ chrome.commands.onCommand.addListener((command) => {
           function: pauseAllVideos
         }, (result) => {
           const pausedVideos = result[0].result;
-          // Capture the screenshot
-          chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
-            // Convert data URL to blob
-            fetch(dataUrl)
-              .then(res => res.blob())
-              .then(blob => {
-                // Create form data
-                const formData = new FormData();
-                formData.append('file', blob, 'screenshot.png');
+        // Capture the screenshot
+        chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
+          // Convert data URL to blob
+          fetch(dataUrl)
+            .then(res => res.blob())
+            .then(blob => {
+              // Create form data
+              const formData = new FormData();
+              formData.append('file', blob, 'screenshot.png');
 
-                // Send to API
-                return fetch('http://localhost:8000/boxes', {
-                  method: 'POST',
-                  body: formData
+              // Send to API
+              return fetch('http://localhost:8000/boxes', {
+                method: 'POST',
+                body: formData
                 }).then(response => response.json()).then(data => ({ data, dataUrl, pausedVideos }));
-              })
+            })
               .then(({ data, dataUrl, pausedVideos }) => {
-                console.log('API Response:', data); // Debug log
-                // Inject the drawing logic into the page context
-                chrome.scripting.executeScript({
-                  target: { tabId: tabs[0].id },
+              console.log('API Response:', data); // Debug log
+              // Inject the drawing logic into the page context
+              chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id },
                   function: (boxes, dataUrl, pausedVideos) => {
-                    // This code runs in the page context!
-                    const img = new Image();
-                    img.onload = function() {
-                      const screenshotWidth = img.width;
-                      const screenshotHeight = img.height;
-                      const pageWidth = document.documentElement.clientWidth;
-                      const pageHeight = document.documentElement.clientHeight;
-                      const scaleX = pageWidth / screenshotWidth;
-                      const scaleY = pageHeight / screenshotHeight;
+                  // This code runs in the page context!
+                  const img = new Image();
+                  img.onload = function() {
+                    const screenshotWidth = img.width;
+                    const screenshotHeight = img.height;
+                    const pageWidth = document.documentElement.clientWidth;
+                    const pageHeight = document.documentElement.clientHeight;
+                    const scaleX = pageWidth / screenshotWidth;
+                    const scaleY = pageHeight / screenshotHeight;
                       const scrollY = window.scrollY || document.documentElement.scrollTop;
                       const scrollX = window.scrollX || document.documentElement.scrollLeft;
 
-                      // Draw boxes
-                      const container = document.createElement('div');
-                      container.style.cssText = `
+                    // Draw boxes
+                    const container = document.createElement('div');
+                    container.style.cssText = `
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      pointer-events: none;
+                      z-index: 999999;
+                    `;
+                    boxes.forEach(([x1, y1, x2, y2]) => {
+                      const boxElement = document.createElement('div');
+                      boxElement.style.cssText = `
                         position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        pointer-events: none;
-                        z-index: 999999;
-                      `;
-                      boxes.forEach(([x1, y1, x2, y2]) => {
-                        const boxElement = document.createElement('div');
-                        boxElement.style.cssText = `
-                          position: absolute;
                           left: ${Math.round(x1 * scaleX) + scrollX}px;
                           top: ${Math.round(y1 * scaleY) + scrollY}px;
-                          width: ${Math.round((x2 - x1) * scaleX)}px;
-                          height: ${Math.round((y2 - y1) * scaleY)}px;
+                        width: ${Math.round((x2 - x1) * scaleX)}px;
+                        height: ${Math.round((y2 - y1) * scaleY)}px;
                           border: 2.5px solid #fff;
                           background: rgba(255,255,255,0.13);
                           border-radius: 8px;
                           box-shadow: 0 8px 32px 0 rgba(0,0,0,0.22);
-                          pointer-events: auto;
-                          cursor: pointer;
+                        pointer-events: auto;
+                        cursor: pointer;
                           transition: border-color 0.18s, border-width 0.18s, box-shadow 0.18s, background 0.18s;
-                          box-sizing: border-box;
-                        `;
-                        // Add hover effect
-                        boxElement.addEventListener('mouseover', () => {
+                        box-sizing: border-box;
+                      `;
+                      // Add hover effect
+                      boxElement.addEventListener('mouseover', () => {
                           boxElement.style.borderColor = '#e60023';
                           boxElement.style.borderWidth = '3px';
                           boxElement.style.background = 'rgba(255,255,255,0.18)';
                           boxElement.style.boxShadow = '0 12px 36px 0 rgba(230,0,35,0.22)';
-                        });
-                        boxElement.addEventListener('mouseout', () => {
+                      });
+                      boxElement.addEventListener('mouseout', () => {
                           boxElement.style.borderColor = '#fff';
                           boxElement.style.borderWidth = '2.5px';
                           boxElement.style.background = 'rgba(255,255,255,0.13)';
@@ -778,13 +764,6 @@ chrome.commands.onCommand.addListener((command) => {
                                 const closeBtn = document.getElementById('tryOnCloseButton');
                                 closeBtn.onclick = () => {
                                   tryOnPopup.remove();
-                                  // Resume all videos on the page
-                                  const videos = document.querySelectorAll('video');
-                                  videos.forEach(video => {
-                                    if (video.paused) {
-                                      video.play();
-                                    }
-                                  });
                                 };
 
                                 // Fetch the try-on result
@@ -837,20 +816,13 @@ chrome.commands.onCommand.addListener((command) => {
                                 if (overlay) {
                                     overlay.remove();
                                 }
-                                // Resume all videos on the page
-                                const videos = document.querySelectorAll('video');
-                                videos.forEach(video => {
-                                    if (video.paused) {
-                                        video.play();
-                                    }
-                                });
                             };
                           }, 'image/png');
                         });
 
                         container.appendChild(boxElement);
-                      });
-                      document.body.appendChild(container);
+                    });
+                    document.body.appendChild(container);
 
                       // Add a dark overlay to the page to highlight bounding boxes
                       let overlay = document.getElementById('bb-overlay-shadow');
@@ -869,16 +841,16 @@ chrome.commands.onCommand.addListener((command) => {
                         `;
                         document.body.appendChild(overlay);
                       }
-                    };
-                    img.src = dataUrl;
-                  },
+                  };
+                  img.src = dataUrl;
+                },
                   args: [data.boxes || [], dataUrl, pausedVideos]
-                });
-              })
-              .catch(error => {
-                console.error('Error:', error);
               });
-          });
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              });
+            });
         });
       }
     });
@@ -916,4 +888,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     });
   }
-});
+}); 
