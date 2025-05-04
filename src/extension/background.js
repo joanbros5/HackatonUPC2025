@@ -346,6 +346,13 @@ function injectBoundingBoxes(boxes) {
             if (overlay) {
                 overlay.remove();
             }
+            // Resume all videos on the page
+            const videos = document.querySelectorAll('video');
+            videos.forEach(video => {
+                if (video.paused) {
+                    video.play();
+                }
+            });
         };
         // Remove loading spinner if present
         const loader2 = document.getElementById('popup-loader');
@@ -816,6 +823,13 @@ chrome.commands.onCommand.addListener((command) => {
                                 if (overlay) {
                                     overlay.remove();
                                 }
+                                // Resume all videos on the page
+                                const videos = document.querySelectorAll('video');
+                                videos.forEach(video => {
+                                    if (video.paused) {
+                                        video.play();
+                                    }
+                                });
                             };
                           }, 'image/png');
                         });
