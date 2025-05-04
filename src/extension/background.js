@@ -346,6 +346,11 @@ function injectBoundingBoxes(boxes) {
             if (overlay) {
                 overlay.remove();
             }
+            // Remove the loading spinner if it exists
+            const loader = document.getElementById('popup-loader');
+            if (loader) {
+                loader.remove();
+            }
             // Resume all videos on the page
             const videos = document.querySelectorAll('video');
             videos.forEach(video => {
@@ -354,9 +359,6 @@ function injectBoundingBoxes(boxes) {
                 }
             });
         };
-        // Remove loading spinner if present
-        const loader2 = document.getElementById('popup-loader');
-        if (loader2) loader2.remove();
       }, 'image/png');
     });
 
@@ -822,6 +824,11 @@ chrome.commands.onCommand.addListener((command) => {
                                 const overlay = document.getElementById('bb-overlay-shadow');
                                 if (overlay) {
                                     overlay.remove();
+                                }
+                                // Remove the loading spinner if it exists
+                                const loader = document.getElementById('popup-loader');
+                                if (loader) {
+                                    loader.remove();
                                 }
                                 // Resume all videos on the page
                                 const videos = document.querySelectorAll('video');
