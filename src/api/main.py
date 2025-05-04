@@ -47,7 +47,6 @@ async def get_products(file: UploadFile = File(...)):
             "link": result["link"],
             "price": f"{result['price']['value']['current']} {result['price']['currency']}"
         })
-    print(data_to_google)
     google_images = search_google_image(data_to_google)
     if google_images is None:
         return {"results": []}
@@ -62,7 +61,6 @@ async def get_products(file: UploadFile = File(...)):
             "price": product["price"],
             "link": product["link"]
         })
-    print(images_with_links)
 
     return {"results": images_with_links}
 
